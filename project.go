@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"project"
+	"boardWithNumbers3x3"
 )
 
 type Direction int
