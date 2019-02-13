@@ -1,4 +1,4 @@
-package boardNumbers3x3
+package slidingBlocks4x4
 
 import (
 	"bufio"
@@ -21,19 +21,19 @@ const (
 )
 
 type SlidingBlocksBoard struct {
-	boardWithNumbers3x3 [3][3]int
+	boardWithNumbers4x4 [4][4]int
 	dir                 []Direction
 }
 
-var boardWithLetters3x3 [3][3]string
+var boardWithLetters4x4 [4][4]string
 
 func isNumeric(s string) bool {
 	_, err := strconv.ParseFloat(s, 64)
 	return err == nil
 }
 
-func convertToInt(tiles [3][3]string, size int) [3][3]int {
-	var result [3][3]int
+func convertToInt(tiles [4][4]string, size int) [4][4]int {
+	var result [4][4]int
 	var getAllRunes []rune
 	n := 0
 	for i := 0; i < size; i++ {
@@ -51,7 +51,7 @@ func convertToInt(tiles [3][3]string, size int) [3][3]int {
 	}
 	return result
 }
-func (sl *SlidingBlocksBoard) InitializeByHand(size int, choice string) [3][3]int {
+func (sl *SlidingBlocksBoard) InitializeByHand(size int, choice string) [4][4]int {
 	input := bufio.NewReader(os.Stdin)
 	var number int
 	if choice == "numbers" {
@@ -59,10 +59,9 @@ func (sl *SlidingBlocksBoard) InitializeByHand(size int, choice string) [3][3]in
 			for j := 0; j < size; j++ {
 				fmt.Print("Enter tile with position [", i, ",", j, "] : ")
 				userNumber, _ := input.ReadString('\n')
-
 				userNumber = strings.TrimRight(userNumber, "\r\n")
 				number, _ = strconv.Atoi(userNumber)
-				sl.boardWithNumbers3x3[i][j] = number
+				sl.boardWithNumbers4x4[i][j] = number
 			}
 		}
 	} else if choice == "letters" {
@@ -71,31 +70,29 @@ func (sl *SlidingBlocksBoard) InitializeByHand(size int, choice string) [3][3]in
 				fmt.Print("Enter tile with position [", i, ",", j, "] : ")
 				letter, _ := input.ReadString('\n')
 				letter = strings.TrimRight(letter, "\r\n")
-
-				boardWithLetters3x3[i][j] = letter
+				boardWithLetters4x4[i][j] = letter
 			}
 		}
-		sl.boardWithNumbers3x3 = convertToInt(boardWithLetters3x3, size)
+		sl.boardWithNumbers4x4 = convertToInt(boardWithLetters4x4, size)
 	}
-
-	return sl.boardWithNumbers3x3
+	return sl.boardWithNumbers4x4
 }
 
-func (sl *SlidingBlocksBoard) InitializeRandom(size int) [3][3]int {
+func (sl *SlidingBlocksBoard) InitializeRandom(size int) [4][4]int {
 	rand.Seed(time.Now().UnixNano())
-	arr := rand.Perm(9)[:9]
+	arr := rand.Perm(16)[:16]
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
-			sl.boardWithNumbers3x3[i][j] = arr[i]
+			sl.boardWithNumbers4x4[i][j] = arr[i]
 		}
 	}
-	return sl.boardWithNumbers3x3
+	return sl.boardWithNumbers4x4
 }
 
 func (sl *SlidingBlocksBoard) PrintMatrix(size int) {
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
-			fmt.Print(sl.boardWithNumbers3x3[i][j], " ")
+			fmt.Print(sl.boardWithNumbers4x4[i][j], " ")
 		}
 		fmt.Println()
 	}
@@ -105,7 +102,7 @@ func (sl *SlidingBlocksBoard) manhattanDistance(size int) int {
 	var path int
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
-			var currentTile = sl.boardWithNumbers3x3[i][j]
+			var currentTile = sl.boardWithNumbers4x4[i][j]
 			if currentTile != 0 {
 				var rightRow = (currentTile - 1) / size
 				var rightColumn = (currentTile - 1) % size
@@ -116,7 +113,7 @@ func (sl *SlidingBlocksBoard) manhattanDistance(size int) int {
 	return path
 }
 
-func (sl *SlidingBlocksBoard) isReachedDestionation(tiles [3][3]int, size int) bool {
+func (sl *SlidingBlocksBoard) isReachedDestionation(tiles [4][4]int, size int) bool {
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
 			var currentTile = tiles[i][j]
@@ -132,7 +129,7 @@ func (sl *SlidingBlocksBoard) isReachedDestionation(tiles [3][3]int, size int) b
 	return true
 }
 
-func swapTiles(copiedBoard [3][3]int, indexFirstRow int, indexFirstColumn int, indexSecondRow int, indexSecondColumn int) [3][3]int {
+func swapTiles(copiedBoard [4][4]int, indexFirstRow int, indexFirstColumn int, indexSecondRow int, indexSecondColumn int) [4][4]int {
 	var temp = copiedBoard[indexFirstRow][indexFirstColumn]
 	copiedBoard[indexFirstRow][indexFirstColumn] = copiedBoard[indexSecondRow][indexSecondColumn]
 	copiedBoard[indexSecondRow][indexSecondColumn] = temp
@@ -142,19 +139,19 @@ func swapTiles(copiedBoard [3][3]int, indexFirstRow int, indexFirstColumn int, i
 func (sl *SlidingBlocksBoard) getMove(currentTile int, size int) Direction {
 	startX, startY := sl.findStartPosition(size)
 
-	if startX > 0 && currentTile == sl.boardWithNumbers3x3[startX-1][startY] {
+	if startX > 0 && currentTile == sl.boardWithNumbers4x4[startX-1][startY] {
 		return DOWN
-	} else if startX < size-1 && currentTile == sl.boardWithNumbers3x3[startX+1][startY] {
+	} else if startX < size-1 && currentTile == sl.boardWithNumbers4x4[startX+1][startY] {
 		return UP
-	} else if startY > 0 && currentTile == sl.boardWithNumbers3x3[startX][startY-1] {
+	} else if startY > 0 && currentTile == sl.boardWithNumbers4x4[startX][startY-1] {
 		return RIGHT
-	} else if startY < size-1 && currentTile == sl.boardWithNumbers3x3[startX][startY+1] {
+	} else if startY < size-1 && currentTile == sl.boardWithNumbers4x4[startX][startY+1] {
 		return LEFT
 	}
 	return -1
 }
 
-func (sl *SlidingBlocksBoard) returnMove(copiedBoard [3][3]int, step Direction, size int) [3][3]int {
+func (sl *SlidingBlocksBoard) returnMove(copiedBoard [4][4]int, step Direction, size int) [4][4]int {
 	startX, startY := sl.findStartPosition(size)
 
 	switch step {
@@ -179,7 +176,7 @@ func (sl *SlidingBlocksBoard) getAllMoves(startX int, startY int, size int) []Di
 	var allMoves = []Direction{}
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
-			var currentTile = sl.boardWithNumbers3x3[i][j]
+			var currentTile = sl.boardWithNumbers4x4[i][j]
 			var dir = sl.getMove(currentTile, size)
 			if dir != -1 {
 				allMoves = append(allMoves, dir)
@@ -193,7 +190,7 @@ func (sl *SlidingBlocksBoard) getAllMoves(startX int, startY int, size int) []Di
 func (sl *SlidingBlocksBoard) findStartPosition(size int) (int, int) {
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
-			if sl.boardWithNumbers3x3[i][j] == 0 {
+			if sl.boardWithNumbers4x4[i][j] == 0 {
 				return i, j
 			}
 		}
@@ -201,14 +198,14 @@ func (sl *SlidingBlocksBoard) findStartPosition(size int) (int, int) {
 	return -1, -1
 }
 
-func (sl *SlidingBlocksBoard) visitedMoves(size int) map[Direction][3][3]int {
+func (sl *SlidingBlocksBoard) visitedMoves(size int) map[Direction][4][4]int {
 	var allMoves = []Direction{}
 
 	startX, startY := sl.findStartPosition(size)
 
 	allMoves = sl.getAllMoves(startX, startY, size)[:]
 
-	visited := make(map[Direction][3][3]int)
+	visited := make(map[Direction][4][4]int)
 
 	for i := 0; i < len(allMoves); i++ {
 		var move = allMoves[i]
@@ -219,12 +216,12 @@ func (sl *SlidingBlocksBoard) visitedMoves(size int) map[Direction][3][3]int {
 	return visited
 }
 
-func (sl *SlidingBlocksBoard) copyOfPuzzle(size int) [3][3]int {
-	var copyOfMatrix [3][3]int
+func (sl *SlidingBlocksBoard) copyOfPuzzle(size int) [4][4]int {
+	var copyOfMatrix [4][4]int
 
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
-			copyOfMatrix[i][j] = sl.boardWithNumbers3x3[i][j]
+			copyOfMatrix[i][j] = sl.boardWithNumbers4x4[i][j]
 		}
 	}
 	return copyOfMatrix
@@ -234,7 +231,7 @@ func (sl *SlidingBlocksBoard) distance(size int, moves []Direction) int {
 	return len(moves) + sl.manhattanDistance(size)
 }
 
-func (sl *SlidingBlocksBoard) popMinDistance(states map[Direction][3][3]int) map[Direction][3][3]int {
+func (sl *SlidingBlocksBoard) popMinDistance(states map[Direction][4][4]int) map[Direction][4][4]int {
 	var minIndex Direction = 0
 	var minDistance Direction
 	var keys []Direction
@@ -259,8 +256,8 @@ func (sl *SlidingBlocksBoard) popMinDistance(states map[Direction][3][3]int) map
 
 }
 
-func (sl *SlidingBlocksBoard) AStar(size int) [3][3]int {
-	var states = make(map[Direction][3][3]int)
+func (sl *SlidingBlocksBoard) AStar(size int) [4][4]int {
+	var states = make(map[Direction][4][4]int)
 	var moves []Direction
 
 	var keys []Direction
@@ -291,7 +288,7 @@ func (sl *SlidingBlocksBoard) AStar(size int) [3][3]int {
 			fmt.Println("copy", copy_paths)
 
 			//crete a new puzzle with children nodes of the puzzle
-			var child = SlidingBlocksBoard{boardWithNumbers3x3: visit, dir: copy_paths}
+			var child = SlidingBlocksBoard{boardWithNumbers4x4: visit, dir: copy_paths}
 
 			var current_distance = sl.distance(size, child.dir)
 			fmt.Println(current_distance)
@@ -300,5 +297,5 @@ func (sl *SlidingBlocksBoard) AStar(size int) [3][3]int {
 			i++
 		}
 	}
-	return sl.boardWithNumbers3x3
+	return sl.boardWithNumbers4x4
 }
