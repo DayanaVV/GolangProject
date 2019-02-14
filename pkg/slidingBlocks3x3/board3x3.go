@@ -98,12 +98,21 @@ func (sl *SlidingBlocksBoard) InitializeRandom(size int) [3][3]int {
 	return sl.boardWithNumbers3x3
 }
 
-func (sl *SlidingBlocksBoard) PrintMatrix(size int) {
-	for i := 0; i < size; i++ {
-		for j := 0; j < size; j++ {
-			fmt.Print(sl.boardWithNumbers3x3[i][j], " ")
+func (sl *SlidingBlocksBoard) PrintMatrix(size int, choice string) {
+	if choice=="numbers"{
+		for i := 0; i < size; i++ {
+			for j := 0; j < size; j++ {
+				fmt.Print(sl.boardWithNumbers3x3[i][j], " ")
+			}
+			fmt.Println()
 		}
-		fmt.Println()
+	} else if choice=="letters"{
+		for i := 0; i < size; i++ {
+			for j := 0; j < size; j++ {
+				fmt.Print(boardWithLetters3x3[i][j], " ")
+			}
+			fmt.Println()
+		}
 	}
 }
 
@@ -323,4 +332,44 @@ func (sl *SlidingBlocksBoard) AStar(size int) [3][3]int {
 		}
 	}
 	return sl.boardWithNumbers3x3
+}
+
+func (sl *SlidingBlocksBoard) UserPlay(size int, choice string){
+	input := bufio.NewReader(os.Stdin)
+	if choice=="numbers"{
+		for !sl.isReachedDestination(sl.boardWithNumbers3x3, size){
+			fmt.Println("Enter the direction you want to move the blank position (0): ")
+			userDirection, _ := input.ReadString('\n')
+			userDirection = strings.TrimRight(userDirection, "\r\n")
+			direction,_:=strconv.Atoi(userDirection)
+			directions:=Direction(direction)
+			sl.boardWithNumbers3x3=sl.returnMove(sl.boardWithNumbers3x3, directions, size)
+			sl.PrintMatrix(size, choice)
+		}
+	} else if choice=="letters"{
+		for !sl.isReachedDestination(sl.boardWithNumbers3x3, size){
+			fmt.Println("Enter the direction you want to move the blank position (0): ")
+			userDirection, _ := input.ReadString('\n')
+			userDirection = strings.TrimRight(userDirection, "\r\n")
+			direction,_:=strconv.Atoi(userDirection)
+			directions:=Direction(direction)
+			sl.boardWithNumbers3x3=sl.returnMove(sl.boardWithNumbers3x3, directions, size)
+			boardWithLetters3x3=sl.convertIntToString(size)
+			sl.PrintMatrix(size, choice)
+		}
+	}
+	fmt.Println("Congratulations! You solved the puzzle!")
+}
+
+func (sl * SlidingBlocksBoard) convertIntToString(size int) [3][3]string{
+	for i:=0; i<size;i++{
+		for j:=0;j<size;j++{
+			if sl.boardWithNumbers3x3[i][j]!=0{
+				boardWithLetters3x3[i][j]=string(sl.boardWithNumbers3x3[i][j]+96)
+			}else {
+				boardWithLetters3x3[i][j]="0"
+			}
+		}
+	}
+	return boardWithLetters3x3
 }

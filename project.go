@@ -47,18 +47,16 @@ func main() {
 	
 	var board slidingBlocks3x3.SlidingBlocksBoard;
 	var board2 slidingBlocks4x4.SlidingBlocksBoard;
-	var tiles =[4][4]int{{0,1,2,3}, {4,5,6,7}, {8,9,10,11},{12,13,14,15}}
-	//var tiles =[3][3]int{{0,1,2}, {3,4,5}, {6,7,8}}
 	if sizeOfBoard == "3" || sizeOfBoard == "4" {
 
 		if (sizeOfBoard == "3" && choice == "numbers") || (sizeOfBoard == "3" && choice == "letters"){
 			board.InitializeByHand(size, choice, endX, endY);
-			board.PrintMatrix(size);
-		//	fmt.Println(board.IsReachedDestination(tiles,size));
+			board.PrintMatrix(size, choice);
+			board.UserPlay(size, choice)
 		} else if (sizeOfBoard == "4" && choice == "numbers") || (sizeOfBoard == "4" && choice == "letters") {
 			board2.InitializeByHand(size,choice, endX, endY)
-			board2.PrintMatrix(size)
-			fmt.Println(board2.IsReachedDestination(tiles,size));
+			board2.PrintMatrix(size, choice)
+			board2.UserPlay(size, choice)
 		} else {
 			fmt.Print("Incorect input. Choose between numbers and letters")
 			return
