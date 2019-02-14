@@ -83,15 +83,27 @@ func (sl *SlidingBlocksBoard) InitializeByHand(size int, choice string,  endX in
 	return sl.boardWithNumbers4x4
 }
 
-func (sl *SlidingBlocksBoard) InitializeRandom(size int) [4][4]int {
+func (sl *SlidingBlocksBoard) InitializeRandom(size int, endX int, endY int) [4][4]int {
+	endXClass=endX
+	endYClass=endY
+
 	rand.Seed(time.Now().UnixNano())
 	arr := rand.Perm(16)[:16]
+	
+	m:=0;
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
-			sl.boardWithNumbers4x4[i][j] = arr[i]
+			sl.boardWithNumbers4x4[i][j] = arr[m]
+			m++;
 		}
 	}
 	return sl.boardWithNumbers4x4
+}
+
+func (sl *SlidingBlocksBoard) InitializeRandomForString(size int, endX int, endY int) [4][4]string {
+	sl.boardWithNumbers4x4=sl.InitializeRandom(size, endX, endY)
+	boardWithLetters4x4=sl.convertIntToString(size)
+	return boardWithLetters4x4
 }
 
 func (sl *SlidingBlocksBoard) PrintMatrix(size int, choice string) {

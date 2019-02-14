@@ -41,21 +41,37 @@ func main() {
 		endY,_=strconv.Atoi(end[1])
 	}
 
-
-	
-
+	fmt.Print("Enter how you want to initialize the board - by hand (h) or random (r): ")
+	initChoice, _ := input.ReadString('\n')
+	initChoice = strings.TrimRight(initChoice, "\r\n")
 	
 	var board slidingBlocks3x3.SlidingBlocksBoard;
 	var board2 slidingBlocks4x4.SlidingBlocksBoard;
 	if sizeOfBoard == "3" || sizeOfBoard == "4" {
 
-		if (sizeOfBoard == "3" && choice == "numbers") || (sizeOfBoard == "3" && choice == "letters"){
+		if (sizeOfBoard == "3" && choice == "numbers" && initChoice=="h") || (sizeOfBoard == "3" && choice == "letters" && initChoice=="h"){
 			board.InitializeByHand(size, choice, endX, endY);
 			board.PrintMatrix(size, choice);
 			board.UserPlay(size, choice)
-		} else if (sizeOfBoard == "4" && choice == "numbers") || (sizeOfBoard == "4" && choice == "letters") {
+		} else if sizeOfBoard == "3" && choice == "numbers" && initChoice=="r" {
+			board.InitializeRandom(size, endX, endY);
+			board.PrintMatrix(size, choice);
+			board.UserPlay(size, choice)
+		}else if sizeOfBoard == "3" && choice == "letters" && initChoice=="r"{
+			board.InitializeRandomForString(size, endX, endY);
+			board.PrintMatrix(size, choice);
+			board.UserPlay(size, choice)
+		} else if (sizeOfBoard == "4" && choice == "numbers" && initChoice=="h") || (sizeOfBoard == "4" && choice == "letters" && initChoice=="h") {
 			board2.InitializeByHand(size,choice, endX, endY)
 			board2.PrintMatrix(size, choice)
+			board2.UserPlay(size, choice)
+		} else if sizeOfBoard == "4" && choice == "numbers" && initChoice=="r" {
+			board2.InitializeRandom(size, endX, endY);
+			board2.PrintMatrix(size, choice);
+			board2.UserPlay(size, choice)
+		}else if sizeOfBoard == "4" && choice == "letters" && initChoice=="r"{
+			board2.InitializeRandomForString(size, endX, endY);
+			board2.PrintMatrix(size, choice);
 			board2.UserPlay(size, choice)
 		} else {
 			fmt.Print("Incorect input. Choose between numbers and letters")
