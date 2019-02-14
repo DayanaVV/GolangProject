@@ -26,6 +26,8 @@ type SlidingBlocksBoard struct {
 }
 
 var boardWithLetters4x4 [4][4]string
+var endXClass int
+var endYClass int
 
 func isNumeric(s string) bool {
 	_, err := strconv.ParseFloat(s, 64)
@@ -51,7 +53,10 @@ func convertToInt(tiles [4][4]string, size int) [4][4]int {
 	}
 	return result
 }
-func (sl *SlidingBlocksBoard) InitializeByHand(size int, choice string) [4][4]int {
+func (sl *SlidingBlocksBoard) InitializeByHand(size int, choice string,  endX int, endY int) [4][4]int {
+	endXClass=endX
+	endYClass=endY
+
 	input := bufio.NewReader(os.Stdin)
 	var number int
 	if choice == "numbers" {
@@ -113,15 +118,30 @@ func (sl *SlidingBlocksBoard) manhattanDistance(size int) int {
 	return path
 }
 
-func (sl *SlidingBlocksBoard) isReachedDestionation(tiles [4][4]int, size int) bool {
+func (sl *SlidingBlocksBoard) isReachedDestination(tiles [4][4]int, size int) bool {
+	if endXClass==0 && endYClass==0 {
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
 			var currentTile = tiles[i][j]
 			if currentTile != 0 {
-				var rightRow = (currentTile - 1) / size
-				var rightColumn = (currentTile - 1) % size
+				var rightRow = (currentTile) / size
+				var rightColumn = (currentTile) % size
 				if i != rightRow || j != rightColumn {
 					return false
+				}
+			}
+		}
+	} 
+	}else if endXClass==3 && endYClass==3{
+		for i := 0; i < size; i++ {
+			for j := 0; j < size; j++ {
+				var currentTile = tiles[i][j]
+				if currentTile != 0 {
+					var rightRow = (currentTile-1) / size
+					var rightColumn = (currentTile-1) % size
+					if i != rightRow || j != rightColumn {
+						return false
+					}
 				}
 			}
 		}
@@ -269,7 +289,7 @@ func (sl *SlidingBlocksBoard) AStar(size int) [4][4]int {
 	for len(states) > 0 {
 		var puzzle = sl.popMinDistance(states)
 		var puz = puzzle[0]
-		if sl.isReachedDestionation(puz, size) {
+		if sl.isReachedDestination(puz, size) {
 			for i := 0; i < len(moves); i++ {
 				fmt.Print(moves[i])
 			}
