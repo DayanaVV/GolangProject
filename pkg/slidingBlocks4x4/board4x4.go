@@ -27,15 +27,16 @@ type SlidingBlocksBoard struct {
 }
 
 var boardWithLetters4x4 [4][4]string
-var endXClass int=3
-var endYClass int=3
+var endXClass int = 3
+var endYClass int = 3
 var undoList = list.New()
 var redoList = list.New()
 
-func (sl *SlidingBlocksBoard) New(tiles [4][4]int) [4][4]int{
-	sl.boardWithNumbers4x4=tiles
+func (sl *SlidingBlocksBoard) New(tiles [4][4]int) [4][4]int {
+	sl.boardWithNumbers4x4 = tiles
 	return sl.boardWithNumbers4x4
 }
+
 //initialize board by user
 func (sl *SlidingBlocksBoard) InitializeByHand(size int, choice string, endX int, endY int) [4][4]int {
 	endXClass = endX
@@ -266,7 +267,7 @@ func (sl *SlidingBlocksBoard) copyOfPuzzle(size int) [4][4]int {
 	return copyOfMatrix
 }
 
-//heuristic function for the A* algorithm 
+//heuristic function for the A* algorithm
 func (sl *SlidingBlocksBoard) distance(size int, moves []Direction) int {
 	return len(moves) + sl.ManhattanDistance(size)
 }
@@ -456,13 +457,13 @@ func (sl *SlidingBlocksBoard) checkForDuplicates(size int) bool {
 //function to check whether user input is in range
 func (sl *SlidingBlocksBoard) isInRange(size int) bool {
 	for i := 0; i < size; i++ {
-		for j := 0; j < size; j++ {	
-			if !(sl.boardWithNumbers4x4[i][j]>=0 && sl.boardWithNumbers4x4[i][j]<=8){
-				return false;
+		for j := 0; j < size; j++ {
+			if !(sl.boardWithNumbers4x4[i][j] >= 0 && sl.boardWithNumbers4x4[i][j] <= 8) {
+				return false
 			}
 		}
 	}
-	return true; 
+	return true
 }
 
 //function to accomplish undo command

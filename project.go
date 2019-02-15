@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	
+
 	input := bufio.NewReader(os.Stdin)
 	fmt.Print("Enter size of the board you want to play: ")
 	sizeOfBoard, _ := input.ReadString('\n')

@@ -27,13 +27,13 @@ type SlidingBlocksBoard struct {
 }
 
 var boardWithLetters3x3 [3][3]string
-var endXClass int=2
-var endYClass int=2
+var endXClass int = 2
+var endYClass int = 2
 var undoList = list.New()
 var redoList = list.New()
 
 func (sl *SlidingBlocksBoard) New(board [3][3]int) [3][3]int {
-	sl.boardWithNumbers3x3=board
+	sl.boardWithNumbers3x3 = board
 	return sl.boardWithNumbers3x3
 }
 
@@ -69,7 +69,7 @@ func (sl *SlidingBlocksBoard) InitializeByHand(size int, choice string, endX int
 		sl.boardWithNumbers3x3 = convertToInt(boardWithLetters3x3, size)
 	}
 
-	if sl.checkForDuplicates(size) || !sl.isInRange(size){
+	if sl.checkForDuplicates(size) || !sl.isInRange(size) {
 		panic("Should not have duplicate values")
 	}
 	return sl.boardWithNumbers3x3
@@ -262,11 +262,11 @@ func (sl *SlidingBlocksBoard) VisitedMoves(size int) map[Direction][3][3]int {
 
 //copy of the game
 func (sl *SlidingBlocksBoard) copyOfPuzzle(game *SlidingBlocksBoard) [3][3]int {
-	sl.boardWithNumbers3x3=game.boardWithNumbers3x3
+	sl.boardWithNumbers3x3 = game.boardWithNumbers3x3
 	return sl.boardWithNumbers3x3
 }
 
-//heuristic function for the A* algorithm 
+//heuristic function for the A* algorithm
 func (sl *SlidingBlocksBoard) distance(size int, moves []Direction) int {
 	return len(moves) + sl.ManhattanDistance(size)
 }
@@ -317,7 +317,7 @@ func (sl *SlidingBlocksBoard) AStar(size int) [3][3]int {
 			fmt.Println()
 			return puz.boardWithNumbers3x3
 		}
-		
+
 		//visit all available moves and calculate distance and add to state visited and pop to final condition
 		var visited = sl.VisitedMoves(size)
 		i := 0
@@ -334,7 +334,7 @@ func (sl *SlidingBlocksBoard) AStar(size int) [3][3]int {
 
 			var current_distance = sl.distance(size, child.dir)
 			fmt.Println(current_distance)
-			states[current_distance]=child;
+			states[current_distance] = child
 			//states.push(current_distance, child);
 			i++
 		}
@@ -410,7 +410,6 @@ func (sl *SlidingBlocksBoard) convertIntToString(size int) [3][3]string {
 	return boardWithLetters3x3
 }
 
-
 //function for converting string matrix to int one
 func convertToInt(tiles [3][3]string, size int) [3][3]int {
 	var result [3][3]int
@@ -456,14 +455,14 @@ func (sl *SlidingBlocksBoard) checkForDuplicates(size int) bool {
 
 //function to check whether user input is in range
 func (sl *SlidingBlocksBoard) isInRange(size int) bool {
-		for i := 0; i < size; i++ {
-			for j := 0; j < size; j++ {	
-				if !(sl.boardWithNumbers3x3[i][j]>=0 && sl.boardWithNumbers3x3[i][j]<=8){
-					return false;
-				}
+	for i := 0; i < size; i++ {
+		for j := 0; j < size; j++ {
+			if !(sl.boardWithNumbers3x3[i][j] >= 0 && sl.boardWithNumbers3x3[i][j] <= 8) {
+				return false
 			}
 		}
-		return true; 
+	}
+	return true
 }
 
 //function for using the undo command
