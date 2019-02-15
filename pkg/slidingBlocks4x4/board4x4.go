@@ -27,35 +27,16 @@ type SlidingBlocksBoard struct {
 }
 
 var boardWithLetters4x4 [4][4]string
-var endXClass int
-var endYClass int
+var endXClass int=3
+var endYClass int=3
 var undoList = list.New()
 var redoList = list.New()
 
-func isNumeric(s string) bool {
-	_, err := strconv.ParseFloat(s, 64)
-	return err == nil
+func (sl *SlidingBlocksBoard) New(tiles [4][4]int) [4][4]int{
+	sl.boardWithNumbers4x4=tiles
+	return sl.boardWithNumbers4x4
 }
-
-func convertToInt(tiles [4][4]string, size int) [4][4]int {
-	var result [4][4]int
-	var getAllRunes []rune
-	n := 0
-	for i := 0; i < size; i++ {
-		for j := 0; j < size; j++ {
-			convertedString := []rune(tiles[i][j])
-			getAllRunes = append(getAllRunes, convertedString...)
-			if int(getAllRunes[n]-'0') != 0 {
-				result[i][j] = int(getAllRunes[n] - '0' - 48)
-				n++
-			} else {
-				result[i][j] = int(getAllRunes[n] - '0')
-				n++
-			}
-		}
-	}
-	return result
-}
+//initialize board by user
 func (sl *SlidingBlocksBoard) InitializeByHand(size int, choice string, endX int, endY int) [4][4]int {
 	endXClass = endX
 	endYClass = endY
@@ -89,6 +70,7 @@ func (sl *SlidingBlocksBoard) InitializeByHand(size int, choice string, endX int
 	return sl.boardWithNumbers4x4
 }
 
+//initialize board random
 func (sl *SlidingBlocksBoard) InitializeRandom(size int, endX int, endY int) [4][4]int {
 	endXClass = endX
 	endYClass = endY
@@ -107,12 +89,14 @@ func (sl *SlidingBlocksBoard) InitializeRandom(size int, endX int, endY int) [4]
 	return sl.boardWithNumbers4x4
 }
 
+//initialize board with string
 func (sl *SlidingBlocksBoard) InitializeRandomForString(size int, endX int, endY int) [4][4]string {
 	sl.boardWithNumbers4x4 = sl.InitializeRandom(size, endX, endY)
 	boardWithLetters4x4 = sl.convertIntToString(size)
 	return boardWithLetters4x4
 }
 
+//function to print board
 func (sl *SlidingBlocksBoard) PrintMatrix(size int, choice string) {
 	if choice == "numbers" {
 		for i := 0; i < size; i++ {
@@ -131,7 +115,8 @@ func (sl *SlidingBlocksBoard) PrintMatrix(size int, choice string) {
 	}
 }
 
-func (sl *SlidingBlocksBoard) manhattanDistance(size int) int {
+//calculate manhattan distance of the board
+func (sl *SlidingBlocksBoard) ManhattanDistance(size int) int {
 	var path int
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
@@ -146,7 +131,8 @@ func (sl *SlidingBlocksBoard) manhattanDistance(size int) int {
 	return path
 }
 
-func (sl *SlidingBlocksBoard) isReachedDestination(tiles [4][4]int, size int) bool {
+//check whether the board is solved
+func (sl *SlidingBlocksBoard) IsReachedDestination(tiles [4][4]int, size int) bool {
 	if endXClass == 0 && endYClass == 0 {
 		for i := 0; i < size; i++ {
 			for j := 0; j < size; j++ {
@@ -177,15 +163,17 @@ func (sl *SlidingBlocksBoard) isReachedDestination(tiles [4][4]int, size int) bo
 	return true
 }
 
-func swapTiles(copiedBoard [4][4]int, indexFirstRow int, indexFirstColumn int, indexSecondRow int, indexSecondColumn int) [4][4]int {
+//swap two values in the board
+func (sl *SlidingBlocksBoard) SwapTiles(copiedBoard [4][4]int, indexFirstRow int, indexFirstColumn int, indexSecondRow int, indexSecondColumn int) [4][4]int {
 	var temp = copiedBoard[indexFirstRow][indexFirstColumn]
 	copiedBoard[indexFirstRow][indexFirstColumn] = copiedBoard[indexSecondRow][indexSecondColumn]
 	copiedBoard[indexSecondRow][indexSecondColumn] = temp
 	return copiedBoard
 }
 
-func (sl *SlidingBlocksBoard) getMove(currentTile int, size int) Direction {
-	startX, startY := sl.findStartPosition(size)
+//return enum (direction) according to the current tile of the board
+func (sl *SlidingBlocksBoard) GetMove(currentTile int, size int) Direction {
+	startX, startY := sl.FindStartPosition(size)
 
 	if startX > 0 && currentTile == sl.boardWithNumbers4x4[startX-1][startY] {
 		return DOWN
@@ -199,33 +187,35 @@ func (sl *SlidingBlocksBoard) getMove(currentTile int, size int) Direction {
 	return -1
 }
 
-func (sl *SlidingBlocksBoard) returnMove(copiedBoard [4][4]int, step Direction, size int) [4][4]int {
-	startX, startY := sl.findStartPosition(size)
+//function returning the board after swapping two tiles according to the direction
+func (sl *SlidingBlocksBoard) ReturnMove(copiedBoard [4][4]int, step Direction, size int) [4][4]int {
+	startX, startY := sl.FindStartPosition(size)
 
 	switch step {
 	case LEFT:
-		copiedBoard = swapTiles(copiedBoard, startX, startY, startX, startY+1)
+		copiedBoard = sl.SwapTiles(copiedBoard, startX, startY, startX, startY+1)
 		break
 	case RIGHT:
-		copiedBoard = swapTiles(copiedBoard, startX, startY, startX, startY-1)
+		copiedBoard = sl.SwapTiles(copiedBoard, startX, startY, startX, startY-1)
 		break
 	case UP:
-		copiedBoard = swapTiles(copiedBoard, startX, startY, startX+1, startY)
+		copiedBoard = sl.SwapTiles(copiedBoard, startX, startY, startX+1, startY)
 		break
 	case DOWN:
-		copiedBoard = swapTiles(copiedBoard, startX, startY, startX-1, startY)
+		copiedBoard = sl.SwapTiles(copiedBoard, startX, startY, startX-1, startY)
 		break
 	}
 
 	return copiedBoard
 }
 
-func (sl *SlidingBlocksBoard) getAllMoves(startX int, startY int, size int) []Direction {
+//return all possible moves for the current board
+func (sl *SlidingBlocksBoard) GetAllMoves(size int) []Direction {
 	var allMoves = []Direction{}
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
 			var currentTile = sl.boardWithNumbers4x4[i][j]
-			var dir = sl.getMove(currentTile, size)
+			var dir = sl.GetMove(currentTile, size)
 			if dir != -1 {
 				allMoves = append(allMoves, dir)
 			}
@@ -235,7 +225,8 @@ func (sl *SlidingBlocksBoard) getAllMoves(startX int, startY int, size int) []Di
 	return allMoves
 }
 
-func (sl *SlidingBlocksBoard) findStartPosition(size int) (int, int) {
+//return all visited and available moves
+func (sl *SlidingBlocksBoard) FindStartPosition(size int) (int, int) {
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
 			if sl.boardWithNumbers4x4[i][j] == 0 {
@@ -246,24 +237,24 @@ func (sl *SlidingBlocksBoard) findStartPosition(size int) (int, int) {
 	return -1, -1
 }
 
-func (sl *SlidingBlocksBoard) visitedMoves(size int) map[Direction][4][4]int {
+//return all visited and available moves
+func (sl *SlidingBlocksBoard) VisitedMoves(size int) map[Direction][4][4]int {
 	var allMoves = []Direction{}
 
-	startX, startY := sl.findStartPosition(size)
-
-	allMoves = sl.getAllMoves(startX, startY, size)[:]
+	allMoves = sl.GetAllMoves(size)[:]
 
 	visited := make(map[Direction][4][4]int)
 
 	for i := 0; i < len(allMoves); i++ {
 		var move = allMoves[i]
 		puzzleCopy := sl.copyOfPuzzle(size)
-		visited[move] = sl.returnMove(puzzleCopy, move, size)
+		visited[move] = sl.ReturnMove(puzzleCopy, move, size)
 	}
 	//	fmt.Println("map:", visited)
 	return visited
 }
 
+//copy of the game
 func (sl *SlidingBlocksBoard) copyOfPuzzle(size int) [4][4]int {
 	var copyOfMatrix [4][4]int
 
@@ -275,10 +266,12 @@ func (sl *SlidingBlocksBoard) copyOfPuzzle(size int) [4][4]int {
 	return copyOfMatrix
 }
 
+//heuristic function for the A* algorithm 
 func (sl *SlidingBlocksBoard) distance(size int, moves []Direction) int {
-	return len(moves) + sl.manhattanDistance(size)
+	return len(moves) + sl.ManhattanDistance(size)
 }
 
+//gets the game with minimal distance
 func (sl *SlidingBlocksBoard) popMinDistance(states map[Direction][4][4]int) map[Direction][4][4]int {
 	var minIndex Direction = 0
 	var minDistance Direction
@@ -317,7 +310,7 @@ func (sl *SlidingBlocksBoard) AStar(size int) [4][4]int {
 	for len(states) > 0 {
 		var puzzle = sl.popMinDistance(states)
 		var puz = puzzle[0]
-		if sl.isReachedDestination(puz, size) {
+		if sl.IsReachedDestination(puz, size) {
 			for i := 0; i < len(moves); i++ {
 				fmt.Print(moves[i])
 			}
@@ -325,7 +318,7 @@ func (sl *SlidingBlocksBoard) AStar(size int) [4][4]int {
 			return puz
 		}
 
-		var visited = sl.visitedMoves(size)
+		var visited = sl.VisitedMoves(size)
 		i := 0
 		var copy_paths []Direction
 		for k, _ := range visited {
@@ -348,13 +341,14 @@ func (sl *SlidingBlocksBoard) AStar(size int) [4][4]int {
 	return sl.boardWithNumbers4x4
 }
 
+//function for user
 func (sl *SlidingBlocksBoard) UserPlay(size int, choice string) {
 	input := bufio.NewReader(os.Stdin)
 	undoList.Init()
 	redoList.Init()
 
 	if choice == "numbers" {
-		for !sl.isReachedDestination(sl.boardWithNumbers4x4, size) {
+		for !sl.IsReachedDestination(sl.boardWithNumbers4x4, size) {
 			fmt.Println("Enter the direction you want to move the blank position (0): ")
 			userDirection, _ := input.ReadString('\n')
 			userDirection = strings.TrimRight(userDirection, "\r\n")
@@ -368,14 +362,14 @@ func (sl *SlidingBlocksBoard) UserPlay(size int, choice string) {
 			} else {
 				direction, _ := strconv.Atoi(userDirection)
 				directions := Direction(direction)
-				sl.boardWithNumbers4x4 = sl.returnMove(sl.boardWithNumbers4x4, directions, size)
+				sl.boardWithNumbers4x4 = sl.ReturnMove(sl.boardWithNumbers4x4, directions, size)
 				undoList.PushBack(sl.boardWithNumbers4x4)
 				redoList.PushFront(sl.boardWithNumbers4x4)
 				sl.PrintMatrix(size, choice)
 			}
 		}
 	} else if choice == "letters" {
-		for !sl.isReachedDestination(sl.boardWithNumbers4x4, size) {
+		for !sl.IsReachedDestination(sl.boardWithNumbers4x4, size) {
 			fmt.Println("Enter the direction you want to move the blank position (0): ")
 			userDirection, _ := input.ReadString('\n')
 			userDirection = strings.TrimRight(userDirection, "\r\n")
@@ -391,7 +385,7 @@ func (sl *SlidingBlocksBoard) UserPlay(size int, choice string) {
 			} else {
 				direction, _ := strconv.Atoi(userDirection)
 				directions := Direction(direction)
-				sl.boardWithNumbers4x4 = sl.returnMove(sl.boardWithNumbers4x4, directions, size)
+				sl.boardWithNumbers4x4 = sl.ReturnMove(sl.boardWithNumbers4x4, directions, size)
 				undoList.PushBack(sl.boardWithNumbers4x4)
 				redoList.PushFront(sl.boardWithNumbers4x4)
 				boardWithLetters4x4 = sl.convertIntToString(size)
@@ -402,6 +396,7 @@ func (sl *SlidingBlocksBoard) UserPlay(size int, choice string) {
 	fmt.Println("Congratulations! You solved the puzzle!")
 }
 
+//converting int board to a string one
 func (sl *SlidingBlocksBoard) convertIntToString(size int) [4][4]string {
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
@@ -415,6 +410,28 @@ func (sl *SlidingBlocksBoard) convertIntToString(size int) [4][4]string {
 	return boardWithLetters4x4
 }
 
+//function for converting string matrix to int one
+func convertToInt(tiles [4][4]string, size int) [4][4]int {
+	var result [4][4]int
+	var getAllRunes []rune
+	n := 0
+	for i := 0; i < size; i++ {
+		for j := 0; j < size; j++ {
+			convertedString := []rune(tiles[i][j])
+			getAllRunes = append(getAllRunes, convertedString...)
+			if int(getAllRunes[n]-'0') != 0 {
+				result[i][j] = int(getAllRunes[n] - '0' - 48)
+				n++
+			} else {
+				result[i][j] = int(getAllRunes[n] - '0')
+				n++
+			}
+		}
+	}
+	return result
+}
+
+//check whether the user has used equal values for initializing the board
 func (sl *SlidingBlocksBoard) checkForDuplicates(size int) bool {
 	var result [16]int
 	m := 0
@@ -435,12 +452,27 @@ func (sl *SlidingBlocksBoard) checkForDuplicates(size int) bool {
 
 	return false
 }
+
+//function to check whether user input is in range
+func (sl *SlidingBlocksBoard) isInRange(size int) bool {
+	for i := 0; i < size; i++ {
+		for j := 0; j < size; j++ {	
+			if !(sl.boardWithNumbers4x4[i][j]>=0 && sl.boardWithNumbers4x4[i][j]<=8){
+				return false;
+			}
+		}
+	}
+	return true; 
+}
+
+//function to accomplish undo command
 func undo() [4][4]int {
 	last := undoList.Front()
 	undoList.Remove(last)
 	return last.Value.([4][4]int)
 }
 
+//function to accomplish redo command
 func redo() [4][4]int {
 	last := redoList.Front()
 	redoList.Remove(last)

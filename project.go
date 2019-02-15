@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+	
 	input := bufio.NewReader(os.Stdin)
 	fmt.Print("Enter size of the board you want to play: ")
 	sizeOfBoard, _ := input.ReadString('\n')
@@ -46,16 +47,13 @@ func main() {
 
 	var board slidingBlocks3x3.SlidingBlocksBoard
 	var board2 slidingBlocks4x4.SlidingBlocksBoard
-	//	var tiles=[3][3]int{{1,2,3}, {4,5,6}, {0,7,8}}
 
 	if sizeOfBoard == "3" || sizeOfBoard == "4" {
 
 		if (sizeOfBoard == "3" && choice == "numbers" && initChoice == "h") || (sizeOfBoard == "3" && choice == "letters" && initChoice == "h") {
 			board.InitializeByHand(size, choice, endX, endY)
-			//fmt.Println(board.CheckForDuplicates(size))
 			board.PrintMatrix(size, choice)
-			board.UserPlay(size, choice)
-			//board.PushIntoList()
+			fmt.Println(board.AStar(size))
 		} else if sizeOfBoard == "3" && choice == "numbers" && initChoice == "r" {
 			board.InitializeRandom(size, endX, endY)
 			board.PrintMatrix(size, choice)
