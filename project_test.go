@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/DayanaVV/GolangProject/pkg/slidingBlocks3x3"
-	"github.com/DayanaVV/GolangProject/pkg/slidingBlocks4x4"
+	"github.com/DayanaVV/SlidingBlocksGoGame/pkg/slidingBlocks3x3"
+	"github.com/DayanaVV/SlidingBlocksGoGame/pkg/slidingBlocks4x4"
 	"reflect"
 	"testing"
 )

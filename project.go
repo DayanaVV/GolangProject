@@ -3,8 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/DayanaVV/GolangProject/pkg/slidingBlocks3x3"
-	"github.com/DayanaVV/GolangProject/pkg/slidingBlocks4x4"
+	"github.com/DayanaVV/SlidingBlocksGoGame/pkg/slidingBlocks3x3"
+	"github.com/DayanaVV/SlidingBlocksGoGame/pkg/slidingBlocks4x4"
 	"os"
 	"strconv"
 	"strings"
