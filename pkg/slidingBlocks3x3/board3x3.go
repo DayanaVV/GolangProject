@@ -2,6 +2,7 @@ package slidingBlocks3x3
 
 import (
 	"bufio"
+	"container/list"
 	"fmt"
 	"math"
 	"math/rand"
@@ -28,6 +29,8 @@ type SlidingBlocksBoard struct {
 var boardWithLetters3x3 [3][3]string
 var endXClass int
 var endYClass int
+var undoList = list.New()
+var redoList = list.New()
 
 func isNumeric(s string) bool {
 	_, err := strconv.ParseFloat(s, 64)
@@ -54,8 +57,8 @@ func convertToInt(tiles [3][3]string, size int) [3][3]int {
 	return result
 }
 func (sl *SlidingBlocksBoard) InitializeByHand(size int, choice string, endX int, endY int) [3][3]int {
-	endXClass=endX
-	endYClass=endY
+	endXClass = endX
+	endYClass = endY
 
 	input := bufio.NewReader(os.Stdin)
 
@@ -84,41 +87,45 @@ func (sl *SlidingBlocksBoard) InitializeByHand(size int, choice string, endX int
 		sl.boardWithNumbers3x3 = convertToInt(boardWithLetters3x3, size)
 	}
 
+	if sl.checkForDuplicates(size) {
+		panic("Should not have duplicate values")
+	}
 	return sl.boardWithNumbers3x3
 }
 
 func (sl *SlidingBlocksBoard) InitializeRandom(size int, endX int, endY int) [3][3]int {
-	endXClass=endX
-	endYClass=endY
+	endXClass = endX
+	endYClass = endY
 
 	rand.Seed(time.Now().UnixNano())
 	arr := rand.Perm(9)[:9]
-	m:=0;
+	m := 0
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
 			sl.boardWithNumbers3x3[i][j] = arr[m]
-			m++;
+			m++
 		}
 	}
+
 	return sl.boardWithNumbers3x3
-	
+
 }
 
 func (sl *SlidingBlocksBoard) InitializeRandomForString(size int, endX int, endY int) [3][3]string {
-	sl.boardWithNumbers3x3=sl.InitializeRandom(size, endX, endY)
-	boardWithLetters3x3=sl.convertIntToString(size)
-	return boardWithLetters3x3	
+	sl.boardWithNumbers3x3 = sl.InitializeRandom(size, endX, endY)
+	boardWithLetters3x3 = sl.convertIntToString(size)
+	return boardWithLetters3x3
 }
 
 func (sl *SlidingBlocksBoard) PrintMatrix(size int, choice string) {
-	if choice=="numbers"{
+	if choice == "numbers" {
 		for i := 0; i < size; i++ {
 			for j := 0; j < size; j++ {
 				fmt.Print(sl.boardWithNumbers3x3[i][j], " ")
 			}
 			fmt.Println()
 		}
-	} else if choice=="letters"{
+	} else if choice == "letters" {
 		for i := 0; i < size; i++ {
 			for j := 0; j < size; j++ {
 				fmt.Print(boardWithLetters3x3[i][j], " ")
@@ -144,8 +151,8 @@ func (sl *SlidingBlocksBoard) manhattanDistance(size int) int {
 }
 
 func (sl *SlidingBlocksBoard) isReachedDestination(tiles [3][3]int, size int) bool {
-	 
-	if endXClass==0 && endYClass==0 {
+
+	if endXClass == 0 && endYClass == 0 {
 		for i := 0; i < size; i++ {
 			for j := 0; j < size; j++ {
 				var currentTile = tiles[i][j]
@@ -158,13 +165,13 @@ func (sl *SlidingBlocksBoard) isReachedDestination(tiles [3][3]int, size int) bo
 				}
 			}
 		}
-	} else if endXClass==2 && endYClass==2{
+	} else if endXClass == 2 && endYClass == 2 {
 		for i := 0; i < size; i++ {
 			for j := 0; j < size; j++ {
 				var currentTile = tiles[i][j]
 				if currentTile != 0 {
-					var rightRow = (currentTile-1) / size
-					var rightColumn = (currentTile-1) % size
+					var rightRow = (currentTile - 1) / size
+					var rightColumn = (currentTile - 1) % size
 					if i != rightRow || j != rightColumn {
 						return false
 					}
@@ -346,42 +353,101 @@ func (sl *SlidingBlocksBoard) AStar(size int) [3][3]int {
 	return sl.boardWithNumbers3x3
 }
 
-func (sl *SlidingBlocksBoard) UserPlay(size int, choice string){
+func (sl *SlidingBlocksBoard) UserPlay(size int, choice string) {
 	input := bufio.NewReader(os.Stdin)
-	if choice=="numbers"{
-		for !sl.isReachedDestination(sl.boardWithNumbers3x3, size){
+	undoList.Init()
+	redoList.Init()
+
+	if choice == "numbers" {
+		for !sl.isReachedDestination(sl.boardWithNumbers3x3, size) {
 			fmt.Println("Enter the direction you want to move the blank position (0): ")
 			userDirection, _ := input.ReadString('\n')
 			userDirection = strings.TrimRight(userDirection, "\r\n")
-			direction,_:=strconv.Atoi(userDirection)
-			directions:=Direction(direction)
-			sl.boardWithNumbers3x3=sl.returnMove(sl.boardWithNumbers3x3, directions, size)
-			sl.PrintMatrix(size, choice)
+
+			if userDirection == "undo" {
+				sl.boardWithNumbers3x3 = undo()
+				sl.PrintMatrix(size, choice)
+			} else if userDirection == "redo" {
+				sl.boardWithNumbers3x3 = redo()
+				sl.PrintMatrix(size, choice)
+			} else {
+				direction, _ := strconv.Atoi(userDirection)
+				directions := Direction(direction)
+				sl.boardWithNumbers3x3 = sl.returnMove(sl.boardWithNumbers3x3, directions, size)
+				undoList.PushBack(sl.boardWithNumbers3x3)
+				redoList.PushFront(sl.boardWithNumbers3x3)
+				sl.PrintMatrix(size, choice)
+			}
 		}
-	} else if choice=="letters"{
-		for !sl.isReachedDestination(sl.boardWithNumbers3x3, size){
+	} else if choice == "letters" {
+		for !sl.isReachedDestination(sl.boardWithNumbers3x3, size) {
 			fmt.Println("Enter the direction you want to move the blank position (0): ")
 			userDirection, _ := input.ReadString('\n')
 			userDirection = strings.TrimRight(userDirection, "\r\n")
-			direction,_:=strconv.Atoi(userDirection)
-			directions:=Direction(direction)
-			sl.boardWithNumbers3x3=sl.returnMove(sl.boardWithNumbers3x3, directions, size)
-			boardWithLetters3x3=sl.convertIntToString(size)
-			sl.PrintMatrix(size, choice)
+			if userDirection == "undo" {
+				sl.boardWithNumbers3x3 = undo()
+				boardWithLetters3x3 = sl.convertIntToString(size)
+				sl.PrintMatrix(size, choice)
+			} else if userDirection == "redo" {
+				sl.boardWithNumbers3x3 = redo()
+				boardWithLetters3x3 = sl.convertIntToString(size)
+				sl.PrintMatrix(size, choice)
+			} else {
+				direction, _ := strconv.Atoi(userDirection)
+				directions := Direction(direction)
+				sl.boardWithNumbers3x3 = sl.returnMove(sl.boardWithNumbers3x3, directions, size)
+				undoList.PushBack(sl.boardWithNumbers3x3)
+				redoList.PushFront(sl.boardWithNumbers3x3)
+				boardWithLetters3x3 = sl.convertIntToString(size)
+				sl.PrintMatrix(size, choice)
+			}
 		}
 	}
 	fmt.Println("Congratulations! You solved the puzzle!")
 }
 
-func (sl * SlidingBlocksBoard) convertIntToString(size int) [3][3]string{
-	for i:=0; i<size;i++{
-		for j:=0;j<size;j++{
-			if sl.boardWithNumbers3x3[i][j]!=0{
-				boardWithLetters3x3[i][j]=string(sl.boardWithNumbers3x3[i][j]+96)
-			}else {
-				boardWithLetters3x3[i][j]="0"
+func (sl *SlidingBlocksBoard) convertIntToString(size int) [3][3]string {
+	for i := 0; i < size; i++ {
+		for j := 0; j < size; j++ {
+			if sl.boardWithNumbers3x3[i][j] != 0 {
+				boardWithLetters3x3[i][j] = string(sl.boardWithNumbers3x3[i][j] + 96)
+			} else {
+				boardWithLetters3x3[i][j] = "0"
 			}
 		}
 	}
 	return boardWithLetters3x3
+}
+
+func (sl *SlidingBlocksBoard) checkForDuplicates(size int) bool {
+	var result [9]int
+	m := 0
+	for i := 0; i < size; i++ {
+		for j := 0; j < size; j++ {
+			result[m] = sl.boardWithNumbers3x3[i][j]
+			m++
+		}
+	}
+
+	for i := 0; i < len(result); i++ {
+		for j := i + 1; j < len(result)-1; j++ {
+			if result[i] == result[j] {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func undo() [3][3]int {
+	last := undoList.Front()
+	undoList.Remove(last)
+	return last.Value.([3][3]int)
+}
+
+func redo() [3][3]int {
+	last := redoList.Front()
+	redoList.Remove(last)
+	return last.Value.([3][3]int)
 }
